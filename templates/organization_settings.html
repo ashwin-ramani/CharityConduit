@@ -20,7 +20,8 @@
         <ul id="shifts"></ul><br><br>
         Volunteers: 
         <ul id="volunteers"></ul><br><br>
-        <button onclick="saveChanges();">Save Changes</button>
+        <button onclick="saveChanges();">Save Changes</button><br>
+        <button onclick="back();">Back</button>
         <script>
             let shifts = JSON.parse('{{ shifts | safe }}');
             let volunteers = JSON.parse('{{ volunteers | safe }}');
@@ -43,6 +44,17 @@
 
             if (Object.keys(volunteers).length == 0) {
                 document.getElementById("volunteers").innerHTML = "There are no volunteers joined in this organization.";
+            }
+
+            function saveChanges() {
+
+            }
+
+            function back() {
+                let confirmation = window.confirm("Discard changes?");
+                if (confirmation) {
+                    location.href = "/dashboard";
+                }
             }
         </script>
     </body>
