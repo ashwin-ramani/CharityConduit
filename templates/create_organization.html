@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Create Shift</title>
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				min-height: 100vh;
+				font-family: 'Roboto', sans-serif;
+				background: #1f2023;
+			}
+
+			#form {
+				width: 350px;
+				height: 575px;
+				overflow-y: scroll;
+				border-radius: 10px;
+				box-shadow: 5px 20px 50px #000;
+				-ms-overflow-style: none;  /* IE and Edge */
+  				scrollbar-width: none;  /* Firefox */
+			}
+
+			#form::-webkit-scrollbar {
+				display: none;
+			}
+
+			input {
+				width: 65%;
+				height: 25px;
+				background: #e0dede;
+				justify-content: center;
+				display: flex;
+				margin: 20px auto;
+				padding: 10px;
+				border: none;
+				outline: none;
+				border-radius: 5px;
+			}
+
+            select {
+                width: 65%;
+				height: 45px;
+				background: #e0dede;
+				justify-content: center;
+				display: flex;
+				margin: 20px auto;
+				padding: 10px;
+				border: none;
+				outline: none;
+				border-radius: 5px; 
+            }
+
+			#createButton {
+				width: 60%;
+				height: 40px;
+				margin: 10px auto;
+				justify-content: center;
+				display: block;
+				color: #fff;
+				background: #6366f1;
+				font-size: 1em;
+				font-weight: bold;
+				margin-top: 20px;
+				outline: none;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+			}
+			#createButton:hover {
+				background-color: #7274f3;
+			}
+
+			#backButton {
+				width: 60%;
+				height: 40px;
+				margin: 10px auto;
+				justify-content: center;
+				display: block;
+				color: #fff;
+				background: none;
+				font-size: 1em;
+				font-weight: bold;
+				margin-top: 20px;
+				outline: #6366f1;
+				border: solid #6366f1 2px;
+				border-radius: 5px;
+				cursor: pointer;
+			}
+			#backButton:hover {
+				outline: #7274f3;
+				border: solid #7274f3 2px;
+			}
+
+			h1 {
+				text-align: center;
+				color: #6366f1;
+			}
+
+            b {
+                color: white;
+                margin-left: 20px;
+            }
+
+			#errorBox {
+				display: none;
+				width: 80%;
+				height: 40px;
+				margin: 10px auto;
+				text-align: center;
+				line-height: 40px;
+				color: #fff;
+				border: solid red 2px;
+				background: #f54e4e;
+				font-size: 1em;
+				font-weight: bold;
+				margin-top: 20px;
+				border-radius: 3px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="form">
+			<br><h1>Create Organization</h1><br>
+			<div id="errorBox"></div>
+            <b>Name</b><br>
+			<input id="name" placeholder="A-Z, a-z, 0-9"><br>
+            <b>Description</b><br>
+            <input id="description" placeholder="Long response..."><br>
+            <b>City</b><br>
+			<input id="city" placeholder="A-Z, a-z, 0-9"><br>
+            <b>State</b><br>
+            <select id="state">
+                <option value="">Choose...</option>
+                <option value="Alabama">Alabama</option>
+                <option value="Alaska">Alaska</option>
+                <option value="Arizona">Arizona</option>
+                <option value="Arkansas">Arkansas</option>
+                <option value="California">California</option>
+                <option value="Colorado">Colorado</option>
+                <option value="Connecticut">Connecticut</option>
+                <option value="Delaware">Delaware</option>
+                <option value="Florida">Florida</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Hawaii">Hawaii</option>
+                <option value="Idaho">Idaho</option>
+                <option value="Illinois">Illinois</option>
+                <option value="Indiana">Indiana</option>
+                <option value="Iowa">Iowa</option>
+                <option value="Kansas">Kansas</option>
+                <option value="Kentucky">Kentucky</option>
+                <option value="Louisiana">Louisiana</option>
+                <option value="Maine">Maine</option>
+                <option value="Maryland">Maryland</option>
+                <option value="Massachusetts">Massachusetts</option>
+                <option value="Michigan">Michigan</option>
+                <option value="Minnesota">Minnesota</option>
+                <option value="Mississippi">Mississippi</option>
+                <option value="Missouri">Missouri</option>
+                <option value="Montana">Montana</option>
+                <option value="Nebraska">Nebraska</option>
+                <option value="Nevada">Nevada</option>
+                <option value="New Hampshire">New Hampshire</option>
+                <option value="New Jersey">New Jersey</option>
+                <option value="New Mexico">New Mexico</option>
+                <option value="New York">New York</option>
+                <option value="North Carolina">North Carolina</option>
+                <option value="North Dakota">North Dakota</option>
+                <option value="Ohio">Ohio</option>
+                <option value="Oklahoma">Oklahoma</option>
+                <option value="Oregon">Oregon</option>
+                <option value="Pennsylvania">Pennsylvania</option>
+                <option value="Rhode Island">Rhode Island</option>
+                <option value="South Carolina">South Carolina</option>
+                <option value="South Dakota">South Dakota</option>
+                <option value="Tennessee">Tennessee</option>
+                <option value="Texas">Texas</option>
+                <option value="Utah">Utah</option>
+                <option value="Vermont">Vermont</option>
+                <option value="Virginia">Virginia</option>
+                <option value="Washington">Washington</option>
+                <option value="West Virginia">West Virginia</option>
+                <option value="Wisconsin">Wisconsin</option>
+                <option value="Wyoming">Wyoming</option>
+            </select>
+			<button onclick="create();" id="createButton">Create</button>
+			<button onclick="back();" id="backButton">Back</button>
+		</div>
+		<script>
+			function error(text) {
+				let element = document.getElementById("errorBox");
+				element.innerText = text;
+				element.style.display = "block";
+				document.getElementById("form").scrollTop = 0;
+			}
+
+			function create() {
+				let name = document.getElementById("name").value.trim();
+                let description = document.getElementById("description").value.trim();
+                let city = document.getElementById("city").value.trim();
+                let state = document.getElementById("state").value;
+                
+                if (name === "" || description === "" || city === "" || state === "") {
+                    error("No fields can be blank.");
+                }
+
+				fetch("/request", {
+					"method": "POST",
+					"body": JSON.stringify({
+                        "purpose": "create_organization",
+						"name": name,
+						"description": description,
+                        "city": city,
+                        "state": state
+					})
+				})
+				.then(response => response.text())
+				.then(data => {
+					if (data === "0") location.href = "/login";
+					location.href = `/organization/${data}/settings`;
+				});
+			}
+
+
+			function back() {
+				location.href = "/dashboard";
+			}
+		</script>
+	</body>
+</html>

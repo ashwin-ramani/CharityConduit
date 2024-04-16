@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Register</title>
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				min-height: 100vh;
+				font-family: 'Roboto', sans-serif;
+				background: #1f2023;
+			}
+
+			#form {
+				width: 350px;
+				height: 575px;
+				overflow-y: scroll;
+				border-radius: 10px;
+				box-shadow: 5px 20px 50px #000;
+				-ms-overflow-style: none;  /* IE and Edge */
+  				scrollbar-width: none;  /* Firefox */
+			}
+
+			#form::-webkit-scrollbar {
+				display: none;
+			}
+
+			input {
+				width: 65%;
+				height: 25px;
+				background: #e0dede;
+				justify-content: center;
+				display: flex;
+				margin: 20px auto;
+				padding: 10px;
+				border: none;
+				outline: none;
+				border-radius: 5px;
+			}
+
+			#registerButton {
+				width: 60%;
+				height: 40px;
+				margin: 10px auto;
+				justify-content: center;
+				display: block;
+				color: #fff;
+				background-color: #6366f1;
+				font-size: 1em;
+				font-weight: bold;
+				margin-top: 20px;
+				outline: none;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+			}
+
+			#registerButton:hover {
+				background-color: #7274f3;
+			}
+
+			#goToLoginButton {
+				width: 60%;
+				height: 40px;
+				margin: 10px auto;
+				justify-content: center;
+				display: block;
+				color: #fff;
+				background: none;
+				font-size: 1em;
+				font-weight: bold;
+				margin-top: 20px;
+				outline: #6366f1;
+				border: solid #6366f1 2px;
+				border-radius: 5px;
+				cursor: pointer;
+			}
+
+			#goToLoginButton:hover {
+				outline: #7274f3;
+				border: solid #7274f3 2px;
+			}
+
+			h1 {
+				text-align: center;
+				color: #6366f1;
+			}
+
+			#errorBox {
+				display: none;
+				width: 80%;
+				height: 40px;
+				margin: 10px auto;
+				text-align: center;
+				line-height: 40px;
+				color: #fff;
+				border: solid red 2px;
+				background: #f54e4e;
+				font-size: 1em;
+				font-weight: bold;
+				margin-top: 20px;
+				border-radius: 3px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="form">
+			<br><h1>Register</h1><br>
+			<div id="errorBox"></div>
+			<input id="firstName" placeholder="First Name">
+			<input id="lastName" placeholder="Last Name">
+			<input id="username" placeholder="Username">
+			<input id="password" type="password" placeholder="Password">
+			<input id="confirmation" type="password" placeholder="Confirm password"><br>
+			<button onclick="register();" id="registerButton">Register</button>
+			<button onclick="goToLogin();" id="goToLoginButton">Back to login</button>
+		</div>
+		<script>
+			function register() {
+				let firstName = document.getElementById("firstName").value.trim();
+				let lastName = document.getElementById("lastName").value.trim();
+				let username = document.getElementById("username").value.trim();
+				let password = document.getElementById("password").value;
+				let confirmation = document.getElementById("confirmation").value;
+
+				if (firstName === "" || lastName === "" || username === "" || password === "" || confirmation === "") {
+					let element = document.getElementById("errorBox");
+					element.innerText = "No fields can be blank.";
+					element.style.display = "block";
+					document.getElementById("form").scrollTop = 0;
+				}
+				else if (password !== confirmation) {
+					let element = document.getElementById("errorBox");
+					element.innerText = "Passwords do not match.";
+					element.style.display = "block";
+				} else {
+					fetch("/request", {
+						"method": "POST",
+						"body": JSON.stringify({
+							"purpose": "register",
+							"first_name": firstName,
+							"last_name": lastName,
+							"username": username,
+							"password": password
+						})
+					})
+					.then(response => response.text())
+					.then(data => {
+						if (data === "0") {
+							let element = document.getElementById("errorBox");
+							element.innerText = "Username is taken.";
+							element.style.display = "block";
+						}
+						else {
+							location.href = "/dashboard";
+						}
+					})
+				}
+			}
+
+			function goToLogin() {
+				location.href = "/login";
+			}
+		</script>
+	</body>
+</html>

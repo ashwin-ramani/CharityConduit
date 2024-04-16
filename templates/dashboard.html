@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Dashboard</title>
+        <style>
+            body {
+				min-height: 100vh;
+				font-family: 'Roboto', sans-serif;
+				background: #1f2023;
+                color: white;
+			}
+        </style>
+    </head>
+    <body>
+        <b>Hours</b>: {{ hours }}<br><br>
+        <h3>Created Organizations</h3>
+        <ul id="createdOrganizations"></ul>
+        <br>
+        <h3>Joined Organizations</h3>
+        <ul id="joinedOrganizations"></ul>
+        <br><br>
+        <button onclick="location.href = '/create-organization'">Create Organization</button><br>
+        <button onclick="location.href = '/browze'">Browse Organizations</button>
+        <script>
+            let createdOrganizations = JSON.parse('{{ created_organizations | safe }}');
+            let joinedOrganizations = JSON.parse('{{ joined_organizations | safe }}');
+            
+            if (createdOrganizations.length == 0) {
+                document.getElementById("createdOrganizations").innerText = "You have not created any organizations on this account.";
+            } else {
+                for (let organization of createdOrganizations) {
+                    let element = document.createElement("li");
+                    element.innerHTML = `<a href='/organization/${organization[0]}/settings'>${organization[1]}</a>`;
+                    document.getElementById("createdOrganizations").appendChild(element);
+                }
+            }
+
+            if (joinedOrganizations.length == 0) {
+                document.getElementById("joinedOrganizations").innerText = "You have not joined any organizations on this account.";
+            } else {
+                for (let organization of joinedOrganizations) {
+                    let element = document.createElement("li");
+                    element.innerHTML = `<a href='/organization/${organization[0]}'>${organization[1]}</a>`;
+                    document.getElementById("joinedOrganizations").appendChild(element);
+                }
+            }
+        </script>
+    </body>
+</html>

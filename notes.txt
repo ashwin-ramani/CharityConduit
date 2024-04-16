@@ -1,0 +1,11 @@
+IT IS VERY EASY FOR HACKERS TO OBTAIN USER DATA FROM THE DATABASE. ALL PASSWORDS SHOULD BE ENCRYPTED.
+THIS ISSUE MUST BE TAKEN CARE OF BEFORE PUBLICATION. 
+
+Features:
+    - Ability to view and edit shift data after creation of the shift
+    - Ability to edit organization data after creation of the organization
+    - Ability to delete shifts and organizations
+    - Ability to logout of an account
+    - Ability to browse organizations and register for shifts
+        - A user joins an organization by signing up for at least one shift in that organization.
+    - Clock-in/Clock-out systems

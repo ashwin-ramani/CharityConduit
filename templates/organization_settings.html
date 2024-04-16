@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{{ name }}</title>
+        <style>
+            body {
+				min-height: 100vh;
+				font-family: 'Roboto', sans-serif;
+				background: #1f2023;
+                color: white;
+			}
+        </style>
+    </head>
+    <body>
+        Name: <input id="name" value="{{ name }}"><br>
+        Description: <br>
+        <textarea id="description">{{ description }}</textarea><br><br>
+        Shifts:<br>
+        <button onclick="location.href = '/organization/{{ organization_id }}/create-shift'">Create Shift</button>
+        <ul id="shifts"></ul><br><br>
+        Volunteers: 
+        <ul id="volunteers"></ul><br><br>
+        <button onclick="saveChanges();">Save Changes</button>
+        <script>
+            let shifts = JSON.parse('{{ shifts | safe }}');
+            let volunteers = JSON.parse('{{ volunteers | safe }}');
+
+            for (let shiftID in shifts) {
+                let element = document.createElement("li");
+                element.innerHTML = `<a href="/organization/{{ organization_id }}/shift/${shiftID}">${shifts[shiftID]}</a>`;
+                document.getElementById("shifts").appendChild(element);
+            }
+
+            for (let username in volunteers) {
+                let element = document.createElement("li")
+                element.innerHTML = `${username}: <b>${volunteers[username]}</b> hours`
+                document.getElementById("volunteers").appendChild(element);
+            }
+
+            if (Object.keys(shifts).length == 0) {
+                document.getElementById("shifts").innerHTML = "There have not been any shifts created for this organization.";
+            }
+
+            if (Object.keys(volunteers).length == 0) {
+                document.getElementById("volunteers").innerHTML = "There are no volunteers joined in this organization.";
+            }
+        </script>
+    </body>
+</html>
