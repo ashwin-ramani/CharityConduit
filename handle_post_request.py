@@ -6,7 +6,7 @@ def handle_post_request(request):
 	request_data = json.loads(request.data)
 
 	if (request_data["purpose"] == "login"):
-		username = request_data["username"].strip()
+		username = request_data["username"].strip().lower()
 		password = request_data["password"]
 
 		if (users.find_one({"username": username}) == None):
@@ -20,10 +20,10 @@ def handle_post_request(request):
 	elif (request_data["purpose"] == "register"):
 		first_name = request_data["first_name"].strip().capitalize()
 		last_name = request_data["last_name"].strip().capitalize()
-		username = request_data["username"].strip()
+		username = request_data["username"].strip().lower()
 		password = request_data["password"]
 
-		if (users.find_one({"username": username}	) != None):
+		if (users.find_one({"username": username}) != None):
 			return "0"
 
 		users.insert_one({
