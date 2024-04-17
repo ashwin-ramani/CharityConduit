@@ -63,6 +63,24 @@ def handle_post_request(request):
 		users.update_one({"username": username}, {"$push": {"created_organizations": id}})
 
 		return id
+	
+
+	elif (request_data["purpose"] == "edit_organization_data"):
+		if ("LOGIN_TOKEN" not in request.cookies or request.cookies["LOGIN_TOKEN"] not in logins):
+			return "0"
+		
+		organization_id = request_data["organization_id"]
+		username = logins[request.cookies["LOGIN_TOKEN"]]
+
+		if (organization_id not in users.find_one({"username": username})["created_organizations"]):
+			return "1"
+		
+		name = request_data["name"].strip()
+		description = request_data["description"].strip()
+		organizations.update_one({"id": organization_id}, {"$set": {"name": name, "description": description}})
+
+		return "2"
+		
 
 
 	elif (request_data["purpose"] == "create_shift"):
@@ -83,6 +101,9 @@ def handle_post_request(request):
 		days = request_data["days"]
 		shift_id = generate_shift_id()
 
+		print(start_time)
+		print(end_time)
+
 		for time in (start_time, end_time):
 			hours, minutes = (int(i.strip()) for i in time.split(":"))
 			assert hours <= 25 and hours >= 0
@@ -102,4 +123,5 @@ def handle_post_request(request):
 		})
 
 		return shift_id
+		
 		
