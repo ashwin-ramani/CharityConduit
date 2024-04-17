@@ -25,6 +25,8 @@
         <script>
             let shifts = JSON.parse('{{ shifts | safe }}');
             let volunteers = JSON.parse('{{ volunteers | safe }}');
+            let oldName = "{{ name | safe }}";
+            let oldDescription = "{{ description | safe }}";
 
             for (let shiftID in shifts) {
                 let element = document.createElement("li");
@@ -47,11 +49,55 @@
             }
 
             function saveChanges() {
+                let newName = document.getElementById("name").value.trim();
+                let newDescription = document.getElementById("description").value.trim();
 
+                if (newName === "" || newDescription === "") {
+                    alert("No fields can be blank.");
+                }
+
+                else if (oldName !== newName || oldDescription !== newDescription) {
+                    fetch("/request", {
+                        "method": "POST",
+                        "body": JSON.stringify({
+                            "purpose": "edit_organization_data",
+                            "organization_id": "{{ organization_id }}",
+                            "name": newName,
+                            "description": newDescription
+                        })
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        if (data === "0") location.href = "/login";
+                        if (data === "1") {
+                            alert("You do not own this organization.");
+                            location.href = "/dashboard";
+                        }
+                        alert("Changes saved.");
+                    });
+                }
+
+                else {
+                    alert("Changes saved.");
+                }
+
+                oldName = newName;
+                oldDescription = newDescription;
             }
 
             function back() {
-                let confirmation = window.confirm("Discard changes?");
+                let newName = document.getElementById("name").value.trim();
+                let newDescription = document.getElementById("description").value.trim();
+                let confirmation;
+
+                if (oldName !== newName || oldDescription !== newDescription) {
+                    confirmation = window.confirm("Discard changes?")
+                }
+
+                else {
+                    confirmation = true;
+                }
+
                 if (confirmation) {
                     location.href = "/dashboard";
                 }
