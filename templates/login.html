@@ -109,6 +109,15 @@
 			<button onclick="goToRegistration();" id="goToRegistrationButton">Create account</button>
 		</div>
 		<script>
+			let inputElements = document.getElementsByTagName("input");
+			for (let element of inputElements) {
+				element.addEventListener("keydown", (event) => {
+					if (event.key === "Enter") {
+						login();
+					}
+				});
+			}
+
 			function error(text) {
 				let element = document.getElementById("errorBox");
 				element.innerText = text;
