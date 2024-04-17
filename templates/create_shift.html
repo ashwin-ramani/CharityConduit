@@ -163,7 +163,7 @@
 				document.getElementById("form").scrollTop = 0;
 			}
 
-			function isDigit(text) {
+			function isValidDigit(text) {
 				let number = Number.parseInt(text);
 				if (isNaN(number)) return false;
 				if (number < 1) return false;
@@ -186,15 +186,7 @@
 					return error("No fields can be blank.");
 				}
 
-				else if (startTime.split(":").length != 2 || !isDigit(startTime.split(":")[0]) || !isDigit(startTime.split(":")[1])) {
-					return error("Incorrect format for start time.");
-				}
-
-				else if (endTime.split(":").length != 2 || !isDigit(endTime.split(":")[0]) || !isDigit(endTime.split(":")[1])) {
-					return error("Incorrect format for end time.");
-				}
-
-				else if (!isDigit(maxHolders)) {
+				else if (!isValidDigit(maxHolders)) {
 					return error("Max holders must be a valid integer greater than 0.");
 				}
 
