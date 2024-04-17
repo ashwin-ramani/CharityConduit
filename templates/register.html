@@ -119,6 +119,15 @@
 			<button onclick="goToLogin();" id="goToLoginButton">Back to login</button>
 		</div>
 		<script>
+			let inputElements = document.getElementsByTagName("input");
+			for (let element of inputElements) {
+				element.addEventListener("keydown", (event) => {
+					if (event.key === "Enter") {
+						register();
+					}
+				});
+			}
+
 			function register() {
 				let firstName = document.getElementById("firstName").value.trim();
 				let lastName = document.getElementById("lastName").value.trim();
