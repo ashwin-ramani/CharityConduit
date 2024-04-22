@@ -21,6 +21,7 @@
         Volunteers: 
         <ul id="volunteers"></ul><br><br>
         <button onclick="saveChanges();">Save Changes</button><br>
+        <button onclick="deleteOrganization()">Delete Organization</button><br>
         <button onclick="back();">Back</button>
         <script>
             let shifts = JSON.parse('{{ shifts | safe }}');
@@ -83,6 +84,27 @@
 
                 oldName = newName;
                 oldDescription = newDescription;
+            }
+
+            function deleteOrganization() {
+                let prompt = window.prompt("Enter the name of the organization to confirm deletion:");
+
+                if (prompt !== "{{ name | safe }}") return alert("Incorrect name.");
+
+                fetch("/request", {
+                    "method": "POST",
+                    "body": JSON.stringify({
+                        "purpose": "delete_organization",
+                        "organization_id": "{{ organization_id }}", 
+                    })
+                })
+                .then(response => response.text())
+                .then(data => {
+                    if (data === "0") location.href = "/login";
+                    if (data === "1") alert("You do not own this organization.");
+                    location.href = "/dashboard";
+                });
+
             }
 
             function back() {
