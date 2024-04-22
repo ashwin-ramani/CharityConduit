@@ -141,6 +141,12 @@
 					element.style.display = "block";
 					document.getElementById("form").scrollTop = 0;
 				}
+				else if (username.includes(" ")) {
+					let element = document.getElementById("errorBox");
+					element.innerText = "Username cannot contain spaces.";
+					element.style.display = "block";
+					document.getElementById("form").scrollTop = 0;
+				}
 				else if (password !== confirmation) {
 					let element = document.getElementById("errorBox");
 					element.innerText = "Passwords do not match.";
