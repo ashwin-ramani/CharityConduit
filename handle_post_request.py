@@ -80,8 +80,24 @@ def handle_post_request(request):
 		organizations.update_one({"id": organization_id}, {"$set": {"name": name, "description": description}})
 
 		return "2"
-		
+	
 
+	elif (request_data["purpose"] == "delete_organization"):
+		if ("LOGIN_TOKEN" not in request.cookies or request.cookies["LOGIN_TOKEN"] not in logins):
+			return "0"
+		
+		organization_id = request_data["organization_id"]
+		username = logins[request.cookies["LOGIN_TOKEN"]]
+
+		if (organization_id not in users.find_one({"username": username})["created_organizations"]):
+			return "1"
+		
+		organizations.delete_one({"id": organization_id})
+		shifts.delete_many({"organization": organization_id})
+		users.update_one({"username": username}, {"$pull": {"created_organizations": organization_id}})
+
+		return "2"
+		
 
 	elif (request_data["purpose"] == "create_shift"):
 		if ("LOGIN_TOKEN" not in request.cookies or request.cookies["LOGIN_TOKEN"] not in logins):
@@ -100,9 +116,6 @@ def handle_post_request(request):
 		max_holders = request_data["max_holders"]
 		days = request_data["days"]
 		shift_id = generate_shift_id()
-
-		print(start_time)
-		print(end_time)
 
 		for time in (start_time, end_time):
 			hours, minutes = (int(i.strip()) for i in time.split(":"))
@@ -124,4 +137,36 @@ def handle_post_request(request):
 
 		return shift_id
 		
+	
+	if (request_data["purpose"] == "take_shift"):
+		if ("LOGIN_TOKEN" not in request.cookies or request.cookies["LOGIN_TOKEN"] not in logins):
+			return "0"
+		
+		organization_id = request_data["organization_id"]
+		shift_id = request_data["shift_id"]
+		username = logins[request.cookies["LOGIN_TOKEN"]]
+		user_data = users.find_one({"username": username})
+		organization_data = organizations.find_one({"id": organization_id})
+		shift_data = shifts.find_one({"id": shift_id})
+
+		if (len(shift_data["volunteers"]) == shift_data["max_holders"]):
+			return "0"
+
+		if (organization_id not in user_data["created_organizations"] and organization_id not in user_data["joined_organizations"]):
+			users.update_one({"username": username}, {"$push": {"joined_organizations": organization_id}})
+		
+		users.update_one({"username": username}, {"$push": {"shifts": shift_id}})
+		shifts.update_one({"id": shift_id}, {"$push": {"volunteers": username}})
+
+		if (username not in organization_data["volunteers"]):
+			organizations.update_one({"id": organization_id}, {"$set", {f"volunteers.{username}": {
+				"shifts": [shift_id],
+				"hours": 0
+			}}})
+		else:
+			organizations.update_one({"id": organization_id}, {"$push": {f"volunteers.{username}.shifts": shift_id}})
+
+		return "1"
+			
+
 		
