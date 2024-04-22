@@ -47,11 +47,17 @@ def dashboard():
     joined_organizations = []
 
     for id in user_data["created_organizations"]:
-        name = organizations.find_one({"id": id})["name"]
-        created_organizations.append([id, name])
+        try:
+            name = organizations.find_one({"id": id})["name"]
+            created_organizations.append([id, name])
+        except:
+            pass
     for id in user_data["joined_organizations"]:
-        name = organizations.find_one({"id": id})["name"]
-        joined_organizations.append([id, name])
+        try:
+            name = organizations.find_one({"id": id})["name"]
+            joined_organizations.append([id, name])
+        except:
+            pass
 
     return render_template("dashboard.html", hours = user_data["hours"], created_organizations = json.dumps(created_organizations), joined_organizations = json.dumps(joined_organizations))   
  
