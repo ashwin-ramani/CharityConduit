@@ -122,7 +122,7 @@ def view_shift(organization_id, shift_id):
         return "There are no shifts created with this ID."
     else:
         shift_data = shifts.find_one({"id": shift_id})
-        return render_template("shift.html", **shift_data)
+        return render_template("shift_settings.html", **shift_data)
 
 
 @app.route("/browse")
