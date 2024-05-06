@@ -85,14 +85,13 @@
 			#errorBox {
 				display: none;
 				width: 80%;
-				height: 40px;
 				margin: 10px auto;
 				text-align: center;
 				line-height: 40px;
 				color: #fff;
 				border: solid red 2px;
 				background: #f54e4e;
-				font-size: 1em;
+				font-size: 16px;
 				font-weight: bold;
 				margin-top: 20px;
 				border-radius: 3px;
@@ -102,7 +101,7 @@
 	<body>
 		<div id="form">
 			<br><h1>Login</h1><br>
-			<div id="errorBox"></div>
+			<div id="errorBox"><span id="errorText"></span></div>
 			<input id="username" placeholder="Username">
 			<input id="password" type="password" placeholder="Password"><br>
 			<button onclick="login();" id="loginButton">Login</button>
@@ -119,9 +118,12 @@
 			}
 
 			function error(text) {
-				let element = document.getElementById("errorBox");
-				element.innerText = text;
-				element.style.display = "block";
+				let errorBox = document.getElementById("errorBox");
+				let errorText = document.getElementById("errorText");
+				errorText.innerText = text;
+				let numLines = errorText.offsetHeight / parseInt(errorText.style.lineHeight);
+				errorBox.style.height = `${16 * numLines + 24}px`;
+				errorBox.style.display = "block";
 				document.getElementById("form").scrollTop = 0;
 			}
 
