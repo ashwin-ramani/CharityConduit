@@ -69,3 +69,25 @@ def generate_shift_id():
 		string = inner()
 
 	return string
+
+
+# if time1 is greater than time2, the method returns 1
+# if time2 is greater than time1, the method returns 2
+# if both are equal, the method returns -1
+def compare_times(time1, time2):
+	hours1, minutes1 = (int(i) for i in time1.split(":"))
+	hours2, minutes2 = (int(i) for i in time2.split(":"))
+	
+	if (hours1 > hours2):
+		return 1
+	if (hours1 < hours2):
+		return 2
+	if (minutes1 > minutes2):
+		return 1
+	if (minutes2 > minutes1):
+		return 2
+	return -1
+
+
+def generate_organization_list(request):
+	pass
