@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Create Shift</title>
+		<title>Create Organization</title>
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 		<style>
 			body {
@@ -109,31 +109,36 @@
 			#errorBox {
 				display: none;
 				width: 80%;
-				height: 40px;
 				margin: 10px auto;
 				text-align: center;
 				line-height: 40px;
 				color: #fff;
 				border: solid red 2px;
 				background: #f54e4e;
-				font-size: 1em;
+				font-size: 16px;
 				font-weight: bold;
 				margin-top: 20px;
 				border-radius: 3px;
+			}
+
+			.questionIcon {
+				width: 16px;
+				height: 16px;
+				cursor: help;
 			}
 		</style>
 	</head>
 	<body>
 		<div id="form">
 			<br><h1>Create Organization</h1><br>
-			<div id="errorBox"></div>
-            <b>Name</b><br>
+			<div id="errorBox"><span id="errorText"></span></div>
+            <b>Organization Name</b><br>
 			<input id="name" placeholder="A-Z, a-z, 0-9"><br>
             <b>Description</b><br>
             <input id="description" placeholder="Long response..."><br>
-            <b>City</b><br>
+            <b>City</b>&nbsp;<img class="questionIcon" id="cityIcon" src="/static/question_mark_icon.png"><br>
 			<input id="city" placeholder="A-Z, a-z, 0-9"><br>
-            <b>State</b><br>
+            <b>State</b>&nbsp;<img class="questionIcon" id="stateIcon" src="/static/question_mark_icon.png"><br>
             <select id="state">
                 <option value="">Choose...</option>
                 <option value="Alabama">Alabama</option>
@@ -192,9 +197,12 @@
 		</div>
 		<script>
 			function error(text) {
-				let element = document.getElementById("errorBox");
-				element.innerText = text;
-				element.style.display = "block";
+				let errorBox = document.getElementById("errorBox");
+				let errorText = document.getElementById("errorText");
+				errorText.innerText = text;
+				let numLines = errorText.offsetHeight / parseInt(errorText.style.lineHeight);
+				errorBox.style.height = `${16 * numLines + 24}px`;
+				errorBox.style.display = "block";
 				document.getElementById("form").scrollTop = 0;
 			}
 
@@ -208,21 +216,23 @@
                     error("No fields can be blank.");
                 }
 
-				fetch("/request", {
-					"method": "POST",
-					"body": JSON.stringify({
-                        "purpose": "create_organization",
-						"name": name,
-						"description": description,
-                        "city": city,
-                        "state": state
+				else {
+					fetch("/request", {
+						"method": "POST",
+						"body": JSON.stringify({
+							"purpose": "create_organization",
+							"name": name,
+							"description": description,
+							"city": city,
+							"state": state
+						})
 					})
-				})
-				.then(response => response.text())
-				.then(data => {
-					if (data === "0") location.href = "/login";
-					location.href = `/organization/${data}/settings`;
-				});
+					.then(response => response.text())
+					.then(data => {
+						if (data === "0") location.href = "/login";
+						location.href = `/organization/${data}/settings`;
+					});
+				}
 			}
 
 
