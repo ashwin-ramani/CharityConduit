@@ -5,6 +5,11 @@ from important import *
 def handle_post_request(request):
 	request_data = json.loads(request.data)
 
+	for field in request_data:
+		if (request_data[field] == ""):
+			return "99"
+		
+
 	if (request_data["purpose"] == "login"):
 		username = request_data["username"].strip().lower()
 		password = request_data["password"]
@@ -77,7 +82,10 @@ def handle_post_request(request):
 		
 		name = request_data["name"].strip()
 		description = request_data["description"].strip()
-		organizations.update_one({"id": organization_id}, {"$set": {"name": name, "description": description}})
+		organizations.update_one({"id": organization_id}, {"$set": {
+			"name": name, 
+			"description": description
+		}})
 
 		return "2"
 	
@@ -113,9 +121,14 @@ def handle_post_request(request):
 		description = request_data["description"].strip()
 		start_time = request_data["start_time"]
 		end_time = request_data["end_time"]
-		max_holders = request_data["max_holders"]
+		max_holders = int(request_data["max_holders"])
 		days = request_data["days"]
 		shift_id = generate_shift_id()
+
+		if (max_holders < 1):
+			return "-2"
+		if (compare_times(end_time, start_time) != 1):
+			return "-1"
 
 		for time in (start_time, end_time):
 			hours, minutes = (int(i.strip()) for i in time.split(":"))
@@ -132,10 +145,60 @@ def handle_post_request(request):
 			"end_time": end_time,
 			"days": days,
 			"max_holders": max_holders,
-			"volunteers": []
+			"volunteers": {}
 		})
 
 		return shift_id
+	
+	
+	elif (request_data["purpose"] == "edit_shift_data"):
+		if ("LOGIN_TOKEN" not in request.cookies or request.cookies["LOGIN_TOKEN"] not in logins):
+			return "0"
+		
+		organization_id = request_data["organization_id"]
+		username = logins[request.cookies["LOGIN_TOKEN"]]
+
+		if (organization_id not in users.find_one({"username": username})["created_organizations"]):
+			return "1"
+		
+		shift_id = request_data["id"]
+		name = request_data["name"].strip()
+		description = request_data["description"].strip()
+		start_time = request_data["start_time"]
+		end_time = request_data["end_time"]
+		max_holders = int(request_data["max_holders"])
+
+		if (max_holders < 1):
+			return "-2"
+		if (compare_times(end_time, start_time) != 1):
+			return "-1"
+		
+		shifts.update_one({"id": shift_id}, {"$set": {
+			"name": name, 
+			"description": description, 
+			"start_time": start_time, 
+			"end_time": end_time, 
+			"max_holders": max_holders
+		}})
+
+		return "2"
+	
+
+	elif (request_data["purpose"] == "delete_shift"):
+		if ("LOGIN_TOKEN" not in request.cookies or request.cookies["LOGIN_TOKEN"] not in logins):
+			return "0"
+		
+		organization_id = request_data["organization_id"]
+		username = logins[request.cookies["LOGIN_TOKEN"]]
+
+		if (organization_id not in users.find_one({"username": username})["created_organizations"]):
+			return "1"
+		
+		shift_id = request_data["id"]
+		shifts.delete_one({"id": shift_id})
+		organizations.update_one({"id": organization_id}, {"$pull": {"shifts": shift_id}})
+
+		return "2"
 		
 	
 	if (request_data["purpose"] == "take_shift"):
@@ -156,7 +219,7 @@ def handle_post_request(request):
 			users.update_one({"username": username}, {"$push": {"joined_organizations": organization_id}})
 		
 		users.update_one({"username": username}, {"$push": {"shifts": shift_id}})
-		shifts.update_one({"id": shift_id}, {"$push": {"volunteers": username}})
+		shifts.update_one({"id": shift_id}, {"$set": {f"volunteers.{username}": 0}})
 
 		if (username not in organization_data["volunteers"]):
 			organizations.update_one({"id": organization_id}, {"$set", {f"volunteers.{username}": {
@@ -167,6 +230,3 @@ def handle_post_request(request):
 			organizations.update_one({"id": organization_id}, {"$push": {f"volunteers.{username}.shifts": shift_id}})
 
 		return "1"
-			
-
-		
