@@ -45,6 +45,7 @@ def dashboard():
     user_data = users.find_one({"username": username})
     created_organizations = []
     joined_organizations = []
+    _shifts = []
 
     for id in user_data["created_organizations"]:
         try:
@@ -58,8 +59,14 @@ def dashboard():
             joined_organizations.append([id, name])
         except:
             pass
+    for id in user_data["shifts"]:
+        try:
+            name = shifts.find_one({"id": id})["name"]
+            _shifts.append([id, name])
+        except:
+            pass
 
-    return render_template("dashboard.html", hours = user_data["hours"], created_organizations = json.dumps(created_organizations), joined_organizations = json.dumps(joined_organizations))   
+    return render_template("dashboard.html", hours = user_data["hours"], created_organizations = json.dumps(created_organizations), joined_organizations = json.dumps(joined_organizations), shifts = json.dumps(_shifts))   
  
 
 @app.route("/create-organization")
@@ -68,10 +75,39 @@ def create_organization():
         return redirect("/login")
     else:
         return render_template("create_organization.html")
+    
 
+@app.route("/organization/<organization_id>")
+def organization(organization_id):
+    if ("LOGIN_TOKEN" not in request.cookies or request.cookies["LOGIN_TOKEN"] not in logins):
+        return redirect("/login")
+    
+    username = logins[request.cookies["LOGIN_TOKEN"]]
+    user_data = users.find_one({"username": username})
+    created_organizations = user_data["created_organizations"]
+
+    if (organization_id in created_organizations):
+        return redirect(f"/organization/{organization_id}/settings")
+    
+    organization_data = organizations.find_one({"id": organization_id})
+    _shifts = {}
+
+    for shift_id in organization_data["shifts"]:
+        shift_data = shifts.find_one({"id": shift_id})
+        if (shift_id not in user_data["shifts"] and len(shift_data["volunteers"]) < shift_data["max_holders"]):
+            _shifts[shift_id] = {
+                "name": shift_data["name"],
+                "description": shift_data["description"],
+                "available_spots": shift_data["max_holders"] - len(shift_data["volunteers"]),
+                "days": shift_data["days"],
+                "start_time": shift_data["start_time"],
+                "end_time": shift_data["end_time"]
+            }
+    
+    return render_template("organization.html", name = organization_data["name"], description = organization_data["description"], shifts = json.dumps(_shifts))
 
 @app.route("/organization/<organization_id>/settings")
-def organization(organization_id):
+def organization_settings(organization_id):
     if ("LOGIN_TOKEN" not in request.cookies or request.cookies["LOGIN_TOKEN"] not in logins):
         return redirect("/login")
     
@@ -106,14 +142,17 @@ def create_shift(organization_id):
         return render_template("create_shift.html", organization_id = organization_id)
     
 
-@app.route("/organization/<organization_id>/shift/<shift_id>")
-def view_shift(organization_id, shift_id):
+@app.route("/shift/<shift_id>/settings")
+def view_shift_settings(shift_id):
     if ("LOGIN_TOKEN" not in request.cookies or request.cookies["LOGIN_TOKEN"] not in logins):
         return redirect("/login")
     
     username = logins[request.cookies["LOGIN_TOKEN"]]
     user_data = users.find_one({"username": username})
     created_organizations = user_data["created_organizations"]
+    shift_data = shifts.find_one({"id": shift_id})
+    organization_id = shift_data["organization"]
+    organization_name = organizations.find_one({"id": organization_id})["name"]
     organization_data = organizations.find_one({"id": organization_id})
 
     if (organization_data == None or organization_id not in created_organizations):
@@ -121,13 +160,17 @@ def view_shift(organization_id, shift_id):
     elif (shift_id not in organization_data["shifts"]):
         return "There are no shifts created with this ID."
     else:
-        shift_data = shifts.find_one({"id": shift_id})
-        return render_template("shift_settings.html", **shift_data)
+        return render_template("shift_settings.html", **shift_data, organization_name = organization_name)
+    
+
+@app.route("/shift/<shift_id>")
+def view_shift(shift_id):
+    pass
 
 
 @app.route("/browse")
 def browse():
-    return render_template("browse.html")
+    return render_template("browse.html", organization_list = json.dumps(generate_organization_list(request)))
 
 
 @app.route("/request", methods = {"POST"})
