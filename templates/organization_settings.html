@@ -1,129 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>{{ name }}</title>
-        <style>
-            body {
-				min-height: 100vh;
-				font-family: 'Roboto', sans-serif;
-				background: #1f2023;
-                color: white;
-			}
-        </style>
-    </head>
-    <body>
-        Name: <input id="name" value="{{ name }}"><br>
-        Description: <br>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ name }}</title>
+    <style>
+        body {
+            min-height: 100vh;
+            font-family: 'Roboto', sans-serif;
+            background: #1f2023;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+            background-color: #26282b;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            color: #e0e0e0;
+        }
+
+        input[type="text"],
+        textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 5px 0 20px;
+            border: none;
+            outline: none;
+            border-radius: 5px;
+            background-color: #e0dede;
+            color: #333;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            background-color: #d5d3d3;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px 0; /* Reduced margin */
+            border: none;
+            border-radius: 5px;
+            background-color: #6366f1;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #5052f1; /* Instant color change */
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            color: #f44336;
+            margin-bottom: 10px;
+            display: none; /* Hide by default */
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn-group button {
+            flex: 1;
+            margin: 0 5px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <label for="name">Name:</label><br>
+        <input id="name" type="text" value="{{ name }}"><br>
+        <label for="description">Description:</label><br>
         <textarea id="description">{{ description }}</textarea><br><br>
-        Shifts:<br>
-        <button onclick="location.href = '/organization/{{ organization_id }}/create-shift'">Create Shift</button>
-        <ul id="shifts"></ul><br><br>
-        Volunteers: 
+        <strong>Shifts:</strong><br>
+        <ul id="shifts"></ul><br>
+        <button onclick="location.href = '/organization/{{ organization_id }}/create-shift'" style="background-color: #6366f1;">Create Shift</button>
+        <br><br>
+        <strong>Volunteers:</strong><br>
         <ul id="volunteers"></ul><br><br>
-        <button onclick="saveChanges();">Save Changes</button><br>
-        <button onclick="deleteOrganization()">Delete Organization</button><br>
-        <button onclick="back();">Back</button>
-        <script>
-            let shifts = JSON.parse('{{ shifts | safe }}');
-            let volunteers = JSON.parse('{{ volunteers | safe }}');
-            let oldName = "{{ name | safe }}";
-            let oldDescription = "{{ description | safe }}";
+        <div class="btn-group">
+            <button onclick="saveChanges();" style="background-color: #6366f1;">Save Changes</button>
+            <button onclick="deleteOrganization()" style="background-color: #f44336;">Delete Organization</button>
+            <button onclick="back();" style="background-color: #008CBA;">Back</button>
+        </div>
+        <div id="alert" class="alert"></div>
+    </div>
 
-            for (let shiftID in shifts) {
-                let element = document.createElement("li");
-                element.innerHTML = `<a href="/organization/{{ organization_id }}/shift/${shiftID}">${shifts[shiftID]}</a>`;
-                document.getElementById("shifts").appendChild(element);
+    <script>
+        let shifts = JSON.parse('{{ shifts | safe }}');
+        let volunteers = JSON.parse('{{ volunteers | safe }}');
+        let oldName = "{{ name | safe }}";
+        let oldDescription = "{{ description | safe }}";
+
+        for (let shiftID in shifts) {
+            let element = document.createElement("li");
+            element.innerHTML = `<a href="/shift/${shiftID}/settings">${shifts[shiftID]}</a>`;
+            document.getElementById("shifts").appendChild(element);
+        }
+        
+        for (let username in volunteers) {
+            let element = document.createElement("li");
+            element.innerHTML = `${username}: <b>${volunteers[username]}</b> hours`;
+            document.getElementById("volunteers").appendChild(element);
+        }
+
+        if (Object.keys(shifts).length === 0) {
+            document.getElementById("shifts").innerHTML = "There have not been any shifts created for this organization.";
+        }
+
+        if (Object.keys(volunteers).length === 0) {
+            document.getElementById("volunteers").innerHTML = "There are no volunteers joined in this organization.";
+        }
+
+        function saveChanges() {
+            let newName = document.getElementById("name").value.trim();
+            let newDescription = document.getElementById("description").value.trim();
+
+            if (newName === "" || newDescription === "") {
+                displayAlert("No fields can be blank.");
+                return;
             }
 
-            for (let username in volunteers) {
-                let element = document.createElement("li")
-                element.innerHTML = `${username}: <b>${volunteers[username]}</b> hours`
-                document.getElementById("volunteers").appendChild(element);
-            }
-
-            if (Object.keys(shifts).length == 0) {
-                document.getElementById("shifts").innerHTML = "There have not been any shifts created for this organization.";
-            }
-
-            if (Object.keys(volunteers).length == 0) {
-                document.getElementById("volunteers").innerHTML = "There are no volunteers joined in this organization.";
-            }
-
-            function saveChanges() {
-                let newName = document.getElementById("name").value.trim();
-                let newDescription = document.getElementById("description").value.trim();
-
-                if (newName === "" || newDescription === "") {
-                    alert("No fields can be blank.");
-                }
-
-                else if (oldName !== newName || oldDescription !== newDescription) {
-                    fetch("/request", {
-                        "method": "POST",
-                        "body": JSON.stringify({
-                            "purpose": "edit_organization_data",
-                            "organization_id": "{{ organization_id }}",
-                            "name": newName,
-                            "description": newDescription
-                        })
-                    })
-                    .then(response => response.text())
-                    .then(data => {
-                        if (data === "0") location.href = "/login";
-                        if (data === "1") {
-                            alert("You do not own this organization.");
-                            location.href = "/dashboard";
-                        }
-                        alert("Changes saved.");
-                    });
-                }
-
-                else {
-                    alert("Changes saved.");
-                }
-
-                oldName = newName;
-                oldDescription = newDescription;
-            }
-
-            function deleteOrganization() {
-                let prompt = window.prompt("Enter the name of the organization to confirm deletion:");
-
-                if (prompt !== "{{ name | safe }}") return alert("Incorrect name.");
-
+            if (oldName !== newName || oldDescription !== newDescription) {
                 fetch("/request", {
-                    "method": "POST",
-                    "body": JSON.stringify({
-                        "purpose": "delete_organization",
-                        "organization_id": "{{ organization_id }}", 
+                    method: "POST",
+                    body: JSON.stringify({
+                        purpose: "edit_organization_data",
+                        organization_id: "{{ organization_id }}",
+                        name: newName,
+                        description: newDescription
                     })
                 })
                 .then(response => response.text())
                 .then(data => {
                     if (data === "0") location.href = "/login";
-                    if (data === "1") alert("You do not own this organization.");
-                    location.href = "/dashboard";
+                    if (data === "1") {
+                        displayAlert("You do not own this organization.");
+                        location.href = "/dashboard";
+                    }
+                    displayAlert("Changes saved.");
                 });
-
+            } else {
+                displayAlert("No changes to save.");
             }
 
-            function back() {
-                let newName = document.getElementById("name").value.trim();
-                let newDescription = document.getElementById("description").value.trim();
-                let confirmation;
+            oldName = newName;
+            oldDescription = newDescription;
+        }
 
-                if (oldName !== newName || oldDescription !== newDescription) {
-                    confirmation = window.confirm("Discard changes?")
-                }
+        function deleteOrganization() {
+            let promptValue = window.prompt("Enter the name of the organization to confirm deletion:");
 
-                else {
-                    confirmation = true;
-                }
-
-                if (confirmation) {
-                    location.href = "/dashboard";
-                }
+            if (promptValue !== "{{ name | safe }}") {
+                displayAlert("Incorrect name.");
+                return;
             }
-        </script>
-    </body>
+
+            fetch("/request", {
+                method: "POST",
+                body: JSON.stringify({
+                    purpose: "delete_organization",
+                    organization_id: "{{ organization_id }}"
+                })
+            })
+            .then(response => response.text())
+            .then(data => {
+                if (data === "0") location.href = "/login";
+                if (data === "1") displayAlert("You do not own this organization.");
+                location.href = "/dashboard";
+            });
+        }
+
+        function back() {
+            let newName = document.getElementById("name").value.trim();
+            let newDescription = document.getElementById("description").value.trim();
+            let confirmation;
+
+            if (oldName !== newName || oldDescription !== newDescription) {
+                confirmation = window.confirm("Discard changes?");
+            } else {
+                confirmation = true;
+            }
+
+            if (confirmation) {
+                location.href = "/dashboard";
+            }
+        }
+
+        function displayAlert(message) {
+            alert(message);
+        }
+    </script>
+</body>
 </html>
