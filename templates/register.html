@@ -92,14 +92,13 @@
 			#errorBox {
 				display: none;
 				width: 80%;
-				height: 40px;
 				margin: 10px auto;
 				text-align: center;
 				line-height: 40px;
 				color: #fff;
 				border: solid red 2px;
 				background: #f54e4e;
-				font-size: 1em;
+				font-size: 16px;
 				font-weight: bold;
 				margin-top: 20px;
 				border-radius: 3px;
@@ -109,7 +108,7 @@
 	<body>
 		<div id="form">
 			<br><h1>Register</h1><br>
-			<div id="errorBox"></div>
+			<div id="errorBox"><span id="errorText"></span></div>
 			<input id="firstName" placeholder="First Name">
 			<input id="lastName" placeholder="Last Name">
 			<input id="username" placeholder="Username">
@@ -128,6 +127,16 @@
 				});
 			}
 
+			function error(text) {
+				let errorBox = document.getElementById("errorBox");
+				let errorText = document.getElementById("errorText");
+				errorText.innerText = text;
+				let numLines = errorText.offsetHeight / parseInt(errorText.style.lineHeight);
+				errorBox.style.height = `${16 * numLines + 24}px`;
+				errorBox.style.display = "block";
+				document.getElementById("form").scrollTop = 0;
+			}
+
 			function register() {
 				let firstName = document.getElementById("firstName").value.trim();
 				let lastName = document.getElementById("lastName").value.trim();
@@ -136,21 +145,13 @@
 				let confirmation = document.getElementById("confirmation").value;
 
 				if (firstName === "" || lastName === "" || username === "" || password === "" || confirmation === "") {
-					let element = document.getElementById("errorBox");
-					element.innerText = "No fields can be blank.";
-					element.style.display = "block";
-					document.getElementById("form").scrollTop = 0;
+					error("No fields can be blank.");
 				}
 				else if (username.includes(" ")) {
-					let element = document.getElementById("errorBox");
-					element.innerText = "Username cannot contain spaces.";
-					element.style.display = "block";
-					document.getElementById("form").scrollTop = 0;
+					error("Username cannot contain spaces.");
 				}
 				else if (password !== confirmation) {
-					let element = document.getElementById("errorBox");
-					element.innerText = "Passwords do not match.";
-					element.style.display = "block";
+					error("Passwords do not match.");
 				} else {
 					fetch("/request", {
 						"method": "POST",
@@ -165,9 +166,7 @@
 					.then(response => response.text())
 					.then(data => {
 						if (data === "0") {
-							let element = document.getElementById("errorBox");
-							element.innerText = "Username is taken.";
-							element.style.display = "block";
+							error("Username is taken.");
 						}
 						else {
 							location.href = "/dashboard";
