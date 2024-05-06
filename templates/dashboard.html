@@ -1,49 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>Dashboard</title>
-        <style>
-            body {
-				min-height: 100vh;
-				font-family: 'Roboto', sans-serif;
-				background: #1f2023;
-                color: white;
-			}
-        </style>
-    </head>
-    <body>
-        <b>Volunteer Hours</b>: {{ hours }}<br><br>
-        <h3>Created Organizations</h3>
-        <ul id="createdOrganizations"></ul>
-        <br>
-        <h3>Joined Organizations</h3>
-        <ul id="joinedOrganizations"></ul>
-        <br><br>
-        <button onclick="location.href = '/create-organization'">Create Organization</button><br>
-        <button onclick="location.href = '/browze'">Browse Organizations</button>
-        <script>
-            let createdOrganizations = JSON.parse('{{ created_organizations | safe }}');
-            let joinedOrganizations = JSON.parse('{{ joined_organizations | safe }}');
-            
-            if (createdOrganizations.length == 0) {
-                document.getElementById("createdOrganizations").innerText = "You have not created any organizations on this account.";
-            } else {
-                for (let organization of createdOrganizations) {
-                    let element = document.createElement("li");
-                    element.innerHTML = `<a href='/organization/${organization[0]}/settings'>${organization[1]}</a>`;
-                    document.getElementById("createdOrganizations").appendChild(element);
-                }
-            }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            min-height: 100vh;
+            font-family: 'Roboto', sans-serif;
+            background: #1f2023;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        #container {
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 5px 20px 50px #000;
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+        }
+        #dashboard b {
+            font-size: 24px;
+            color: #6366f1;
+        }
+        #dashboard h3 {
+            margin-top: 30px;
+            color: #6366f1;
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        #dashboard ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #dashboard ul li {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        #dashboard ul li a {
+            color: #4CAF50;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            background: #2d2f36;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        #dashboard ul li a:hover {
+            background: #3d4051;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        #dashboard .btn-group {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        #dashboard .btn-group button {
+            background-color: #6366f1;
+            color: white;
+            border: none;
+            padding: 13px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background-color 0.1s;
+            margin: 0 10px;
+            text-transform: capitalize;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        #dashboard .btn-group button:hover {
+            background-color: #7274f3;
+        }
+        a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="dashboard">
+            <b>Volunteer Hours</b>: <span id="hours">{{ hours }}</span><br><br>
+            <h3>Created Organizations</h3>
+            <ul id="createdOrganizations"></ul>
+            <h3>Joined Organizations</h3>
+            <ul id="joinedOrganizations"></ul>
+            <h3>Shifts</h3>
+            <ul id="shifts"></ul>
+            <div class="btn-group">
+                <button onclick="location.href = '/create-organization'">Create organization</button>
+                <button onclick="location.href = '/browse'">Browse organizations</button>
+            </div>
+        </div>
+    </div>
 
-            if (joinedOrganizations.length == 0) {
-                document.getElementById("joinedOrganizations").innerText = "You have not joined any organizations on this account.";
-            } else {
-                for (let organization of joinedOrganizations) {
-                    let element = document.createElement("li");
-                    element.innerHTML = `<a href='/organization/${organization[0]}'>${organization[1]}</a>`;
-                    document.getElementById("joinedOrganizations").appendChild(element);
-                }
+    <script>
+        let createdOrganizations = JSON.parse('{{ created_organizations | safe }}');
+        let joinedOrganizations = JSON.parse('{{ joined_organizations | safe }}');
+        let shifts = JSON.parse("{{ shifts | safe }}");
+        
+        const createdOrgList = document.getElementById("createdOrganizations");
+        const joinedOrgList = document.getElementById("joinedOrganizations");
+        const shiftsList = document.getElementById("shifts");
+        
+        if (createdOrganizations.length === 0) {
+            createdOrgList.innerHTML = "<li>You have not created any organizations on this account.</li>";
+        } else {
+            for (let organization of createdOrganizations) {
+                let listItem = document.createElement("li");
+                listItem.innerHTML = `<a href='/organization/${organization[0]}/settings'>${organization[1]}</a>`;
+                createdOrgList.appendChild(listItem);
             }
-        </script>
-    </body>
+        }
+
+        if (joinedOrganizations.length === 0) {
+            joinedOrgList.innerHTML = "<li>You have not joined any organizations on this account.</li>";
+        } else {
+            for (let organization of joinedOrganizations) {
+                let listItem = document.createElement("li");
+                listItem.innerHTML = `<a href='/organization/${organization[0]}'>${organization[1]}</a>`;
+                joinedOrgList.appendChild(listItem);
+            }
+        }
+
+        if (shifts.length === 0) {
+            shiftsList.innerHTML = "<li>You have not taken on any shifts.</li>";
+        } else {
+            for (let shift of shifts) {
+                let listItem = document.createElement("li");
+                listItem.innerHTML = `<a href='/shift/${shift[0]}'>${shift[1]}</a>`;
+                shiftsList.appendChild(listItem);
+            }
+        }
+    </script>
+</body>
 </html>
